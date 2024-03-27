@@ -9,12 +9,12 @@ WINDOW_H = 1000
 WINDOW_W = 1000
 
 
-def draw_net(net: Net, surface: pygame.Surface, scalex = 1, scaley = 1):
+def draw_net(net: Net, surface: pygame.Surface):
     for w in net.places:
-        pygame.draw.circle(surface, color="cornsilk2" if not w.color else w.color, center=((w.x * scalex, w.y * scaley)), radius=15)
+        pygame.draw.circle(surface, color="cornsilk2" if not w.color else w.color, center=((w.x, w.y)), radius=15)
         for v in w.conns_map.values():
             # for now each line is drawn 2 times
-            pygame.draw.line(surface, color="black", start_pos=((w.x * scalex, w.y * scaley)), end_pos=((v.x * scalex, v.y * scaley)), width=5)
+            pygame.draw.line(surface, color="black", start_pos=((w.x, w.y)), end_pos=((v.x, v.y)), width=5)
 
 # def update_places(places: List[Place], surface: pygame.Surface):
 #     for place in places:
@@ -79,7 +79,7 @@ net.make_conns('connections')
 
 while True:
 
-    draw_net(net, surf2, WINDOW_W / 1000, WINDOW_H / 1000)
+    draw_net(net, surf2)
 
 
     for event in pygame.event.get():
@@ -90,7 +90,8 @@ while True:
             WINDOW_W, WINDOW_H = event.w, event.h
             surf2 = pygame.Surface((WINDOW_W, WINDOW_H))
             surf2.fill('azure4')
-            draw_net(net, surf2, WINDOW_W / 1000, WINDOW_H / 1000)
+            net.update_places(WINDOW_W / 1000, WINDOW_H / 1000)
+            draw_net(net, surf2)
         state = pygame.mouse.get_pressed()
         # left click is being pressed
         if state[0]:

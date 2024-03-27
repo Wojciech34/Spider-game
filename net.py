@@ -78,6 +78,11 @@ class Net():
     
     def make_conns(self, path):
         read_cons(path, self.places)
+    
+    def update_places(self, scalex, scaley):
+        for place in self.places:
+            place.x *= scalex
+            place.y *= scaley
 
 
 
