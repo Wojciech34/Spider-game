@@ -4,10 +4,13 @@ from typing import List
 from net import Net, Place
 from itertools import repeat
 
-# IS_ANY_PLACE_SELECTED = False
-WINDOW_H = 1000
-WINDOW_W = 1000
 
+IS_ANY_PLACE_SELECTED = False
+
+# Default configuration 1000 x 1000
+# when changed need to be scaled
+WINDOW_W = 1000
+WINDOW_H = 1000
 
 def draw_net(net: Net, surface: pygame.Surface):
     for w in net.places:
@@ -15,6 +18,14 @@ def draw_net(net: Net, surface: pygame.Surface):
         for v in w.conns_map.values():
             # for now each line is drawn 2 times
             pygame.draw.line(surface, color="black", start_pos=((w.x, w.y)), end_pos=((v.x, v.y)), width=5)
+
+def display_places_numbers(net: Net, surface: pygame.Surface):
+    for w in net.places:
+        font = pygame.font.Font('freesansbold.ttf', 16)
+        text = font.render(f'{w.c}', True, 'black')
+        textRect = text.get_rect()
+        textRect.center = (w.x, w.y)
+        surface.blit(text, textRect)
 
 # def update_places(places: List[Place], surface: pygame.Surface):
 #     for place in places:
@@ -38,7 +49,7 @@ def select_place(places: List[Place]):
             if abs(place.x - posx) < 10 and abs(place.y - posy) < 10:
                 place.select()
                 place.set_color("blue")
-                show_neighbours(1, place)
+                show_neighbours(2, place)
                 return
 
 def reset_places(places: List[Place]):
@@ -49,7 +60,8 @@ def reset_places(places: List[Place]):
 def show_neighbours(n: int, place: Place):
     for v in place.conns_map.values():
         v.set_show_accesible()
-        v.set_color('pink')
+        if not v.color:
+            v.set_color('pink')
         if n - 1 > 0:
             show_neighbours(n - 1, v)
 
@@ -57,29 +69,34 @@ def reset_showed_neighbours(places: List[Place]):
     for place in places:
         place.set_show_accesible()
 
+def set_initial_size():
+    global WINDOW_W, WINDOW_H
+    infoObject = pygame.display.Info()
+    WINDOW_W, WINDOW_H =  infoObject.current_w - 100, infoObject.current_h - 100
+    
+
 # def select_next_place(place: Place):
 
 
 pygame.init()
-# infoObject = pygame.display.Info()
-# print(infoObject)
+set_initial_size()
 screen = pygame.display.set_mode((WINDOW_W, WINDOW_H), pygame.RESIZABLE)
 pygame.display.set_caption('Runner')
 clock = pygame.time.Clock()
 
-# init surfaces
-# surf1 = pygame.Surface((1000, 900))
-# surf1.fill('azure4')
 surf2 = pygame.Surface((WINDOW_W, WINDOW_H))
 surf2.fill('azure4')
 
 net = Net(path='positions')
 net.make_conns('connections')
-# draw_net(net, surf2)
+net.update_places(WINDOW_W / 1000, WINDOW_H / 1000)
+
 
 while True:
 
     draw_net(net, surf2)
+    # for debug
+    display_places_numbers(net, surf2)
 
 
     for event in pygame.event.get():
@@ -96,9 +113,16 @@ while True:
         # left click is being pressed
         if state[0]:
             select_place(net.places)
+            if IS_ANY_PLACE_SELECTED:
+                # net.find_path()
+                IS_ANY_PLACE_SELECTED = False
+                reset_places(net.places)
+            else:
+                IS_ANY_PLACE_SELECTED = True
         # right or middle click
         if state[1] or state[2]:
             reset_places(net.places)
+            IS_ANY_PLACE_SELECTED = False
 
         # print(state)
         catch_cursor(net.places)

@@ -71,6 +71,7 @@ class Net():
     def __init__(self, n=0, random = False, path=None) -> None:
         if path:
             read_poss(path, self.places)
+        # dont use them for now
         elif random:
             self.places.extend(repeat(Place(uniform(high=MAX_X), uniform(high=MAX_Y)), n))
         else:
@@ -83,6 +84,10 @@ class Net():
         for place in self.places:
             place.x *= scalex
             place.y *= scaley
+    
+    def find_path(self, dest):
+        return
+        start = list(filter(lambda x: x.selected, self.places))[0]
 
 
 
