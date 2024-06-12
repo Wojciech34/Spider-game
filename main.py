@@ -73,13 +73,18 @@ def display_main_menu(surface: pygame.Surface):
     surface.blit(text2, textRect2)
 
     text3 = font.render('Start game map 3', True, 'black')
-    textRect3 = text2.get_rect()
+    textRect3 = text3.get_rect()
     textRect3.center = (460 * WINDOW_W / 1000, 500 * WINDOW_H / 1000)
     surface.blit(text3, textRect3)
 
+    text4 = font.render('Start game map 4', True, 'black')
+    textRect4 = text4.get_rect()
+    textRect4.center = (460 * WINDOW_W / 1000, 700 * WINDOW_H / 1000)
+    surface.blit(text4, textRect4)
 
 
-    return [textRect, textRect2, textRect3]
+
+    return [textRect, textRect2, textRect3, textRect4]
 
 
 
@@ -151,7 +156,7 @@ while True:
         draw_net(net, surf2)
         display_buttons(surf2)
         # for debug
-        display_places_numbers(net, surf2)
+        # display_places_numbers(net, surf2)
 
 
     for event in pygame.event.get():
