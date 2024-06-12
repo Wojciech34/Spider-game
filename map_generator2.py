@@ -1,5 +1,5 @@
 import numpy as np
-np.random.seed(98)
+np.random.seed(133)
 
 points = []
 lines = []
@@ -24,7 +24,7 @@ for j in range(90):
     
 
 
-with open('positions4', 'w') as f:
+with open('data/positions4', 'w') as f:
     f.writelines(lines)
 
 n = len(lines)
@@ -35,7 +35,8 @@ for j in range(n):
     flag = True
     for _ in range(2):
         x = np.random.randint(n)
-        while x in to_check or abs(points[x][0]-points[j][0]) > 100 or abs(points[x][1]-points[j][1]) > 100: # we want neighbours to be close to each other
+        while x in to_check or abs(points[x][0]-points[j][0]) > 100 or abs(
+            points[x][1]-points[j][1]) > 100: # we want neighbours to be close to each other
             x = np.random.randint(n)
             tries += 1
             if tries > 1000:
@@ -44,15 +45,7 @@ for j in range(n):
         if flag:    
             conns.append(f'{j} {x}\n')
             to_check.append(x)
-# for j in range(6):
-#     for i in range(1, 9):
-#         conns.append(f'{j*17 + i} {j*17 + i + 8}\n')
-# for j in range(6):
-#     for i in range(9, 17):
-#         conns.append(f'{j*17 + i} {j*17 + i + 9}\n')            
-# for j in range(6):
-#     for i in range(9, 17):
-#         conns.append(f'{j*17 + i} {j*17 + i + 8}\n')                  
+       
 
-with open('connections4', 'w') as f:
+with open('data/connections4', 'w') as f:
     f.writelines(conns)        

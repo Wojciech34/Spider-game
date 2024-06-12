@@ -1,11 +1,9 @@
 import pygame
 import sys
 from typing import List
-from net import Net, Place, Spider, Fly
+from net import Net, Place
 from turn import Turn
-from itertools import repeat
 import threading
-# import queue
 import settings
 
 
@@ -77,16 +75,12 @@ def display_main_menu(surface: pygame.Surface):
     textRect3.center = (460 * WINDOW_W / 1000, 500 * WINDOW_H / 1000)
     surface.blit(text3, textRect3)
 
-    text4 = font.render('Start game map 4', True, 'black')
+    text4 = font.render('Test random map', True, 'black')
     textRect4 = text4.get_rect()
     textRect4.center = (460 * WINDOW_W / 1000, 700 * WINDOW_H / 1000)
     surface.blit(text4, textRect4)
 
-
-
     return [textRect, textRect2, textRect3, textRect4]
-
-
 
 
 def catch_cursor(places: List[Place]):
@@ -114,17 +108,9 @@ clock = pygame.time.Clock()
 surf2 = pygame.Surface((WINDOW_W, WINDOW_H))
 surf2.fill('azure4')
 
-# net = Net(path='positions')
-# net.make_conns('connections')
-# net.update_places(WINDOW_W / 1000, WINDOW_H / 1000)
-# turn = Turn(net)
-# thread = threading.Thread(target=turn.perform_turn, daemon=True)
-
 
 settings.init()
 
-
-# thread2 = threading.Thread(target=catch_cursor, args=(net.places, ), daemon=True)
 started = False
 menu_displayed = True
 
@@ -132,7 +118,6 @@ while True:
 
     if started:
         thread.start()
-        # thread2.start()
         started = False
     surf2 = pygame.Surface((WINDOW_W, WINDOW_H))
     surf2.fill('azure4')
@@ -145,8 +130,8 @@ while True:
             if state[0] and rect.x < posx < rect.x + rect.w and rect.y < posy < rect.y + rect.h:
                 menu_displayed = False
                 started = True
-                net = Net(path='positions'+str(idx+1), path2='figures'+str(idx+1))
-                net.make_conns('connections'+str(idx+1))
+                net = Net(path='data/positions'+str(idx+1), path2='data/figures'+str(idx+1))
+                net.make_conns('data/connections'+str(idx+1))
                 net.update_places(WINDOW_W / 1000, WINDOW_H / 1000)
                 turn = Turn(net)
                 thread = threading.Thread(target=turn.perform_turn, daemon=True)
@@ -173,20 +158,10 @@ while True:
                 display_buttons(surf2)
         state = pygame.mouse.get_pressed()
 
-        # left click is being pressed
-        # if state[0]:
-        #     select_place(net.places)
-        # right or middle click
-        # if state[1] or state[2]:
-        #     reset_places(net.places)
         if not menu_displayed:
             catch_cursor(net.places)
 
-    # draw_net(net, surf2)    
-    
-    # screen.blit(surf1, (0, 0))
     screen.blit(surf2, (0, 0))
-    # pygame.display.flip()
 
     pygame.display.update()
     clock.tick(60)        

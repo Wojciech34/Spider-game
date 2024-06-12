@@ -1,4 +1,3 @@
-import math
 from collections import deque
 
 def get_avaible_moves(start_pos, moves, is_spider=False):
@@ -40,8 +39,6 @@ def get_distance(places, pos1, pos2):
             for w in v.conns_map.values():
                 if not visited[w.c]:
                     queue.append((w, distance+1))
-        import pytest
-        pytest.set_trace()
         return -1
     
     distance = dijkstra_algorithm(places, pos1, pos2)

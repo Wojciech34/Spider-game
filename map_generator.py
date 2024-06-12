@@ -7,7 +7,7 @@ for j in range(7):
             lines.append(f'{200+j*100} {170+i*100}\n')
 
 
-with open('positions2', 'w') as f:
+with open('data/positions4', 'w') as f:
     f.writelines(lines)
 
 conns = []
@@ -24,5 +24,5 @@ for j in range(6):
     for i in range(9, 17):
         conns.append(f'{j*17 + i} {j*17 + i + 8}\n')                  
 
-with open('connections2', 'w') as f:
+with open('data/connections4', 'w') as f:
     f.writelines(conns)        

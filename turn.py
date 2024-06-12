@@ -5,7 +5,6 @@ import random
 import pygame
 import time
 from net import Fly, Spider
-# import queue
 import settings
 from utils import get_avaible_moves, get_distance
 
@@ -223,7 +222,4 @@ class Turn():
     def move8(self):
         while True:
             pygame.time.wait(1)
-
-
-
 

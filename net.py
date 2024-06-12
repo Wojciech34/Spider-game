@@ -1,37 +1,14 @@
-import numpy as np
 import pygame
-from numpy.random import uniform
-from itertools import repeat
-import pytest
 from typing import List
 
 
 MAX_X = 500
 MAX_Y = 500
 
-# def fill(surface, color):
-#     """Fill all pixels of the surface with color, preserve transparency."""
-#     w, h = surface.get_size()
-#     r, g, b, _ = color
-#     for x in range(w):
-#         for y in range(h):
-#             a1 = surface.get_at((x, y))[0]
-#             a2 = surface.get_at((x, y))[1]
-#             a3 = surface.get_at((x, y))[2]
-#             a4 = surface.get_at((x, y))[3]
-#             surface.set_at((x, y), pygame.Color(a1, a2, a3, a4))
-#     return surface
-
 class Spider():
     surf = pygame.image.load('images/spider.png', 'spider')
     size = (35, 35)
     surf = pygame.transform.scale(surf, size)
-
-    def select(self):
-
-
-        pass
-
 
 
 class Fly():
@@ -41,15 +18,8 @@ class Fly():
     or_surf = pygame.transform.scale(surf, size)
 
 
-    def select(self):
-        
-        # self.surf = fill(self.surf, (12, 120, 55, 3))
-        # self.surf.set_colorkey([123, 214, 122])
-        pass
-
-
-    def reset_color(self):
-        self.surf = self.or_surf
+    # def reset_color(self):
+    #     self.surf = self.or_surf
 
 
 class Place():
@@ -173,9 +143,3 @@ class Net():
             poss = lines[2].split(' ')
             for pos in poss:
                 self.flies_pos.append(int(pos))
-
-
-# for testing purposes
-# if __name__ == '__main__':
-#     net = Net(path='positions')
-#     pytest.set_trace()
