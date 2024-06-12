@@ -13,4 +13,8 @@ Install dependencies
 ```
 pip install -r requirements.txt
 ```
+## Random map generation
+There is an availability to generate random map. Inside source file `map_generator2.py` there are 2 important options to set before generation. 
+Minimum distance beetwen 2 places and maximum distance between 2 neighbour places. Another importang thing to set is random seed. 
+Next you can manually add/remove places (`positionsx` file) or connections (`connectionsx` file) and set starting figures positions (`figuresx` file).
 
