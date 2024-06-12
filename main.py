@@ -48,7 +48,7 @@ def display_buttons(surface: pygame.Surface):
     font = pygame.font.Font('freesansbold.ttf', 20)
     text = font.render(f'{settings.message}', True, 'black')
     text2 = font.render(f'moves: {settings.number}', True, 'black')
-    text3 = font.render(f'surviving flies: {settings.counter}', True, 'black')
+    text3 = font.render(f'rescued flies: {settings.counter}', True, 'black')
     textRect = text.get_rect()
     textRect.center = (860 * WINDOW_W / 1000, 100 * WINDOW_H / 1000)
     textRect2 = text2.get_rect()
@@ -59,10 +59,30 @@ def display_buttons(surface: pygame.Surface):
     surface.blit(text2, textRect2)
     surface.blit(text3, textRect3)
 
-# def update_places(places: List[Place], surface: pygame.Surface):
-#     for place in places:
-#         if place.color:
-            
+
+def display_main_menu(surface: pygame.Surface):
+    font = pygame.font.Font('freesansbold.ttf', 60)
+    text = font.render('Start game map 1', True, 'black')
+    textRect = text.get_rect()
+    textRect.center = (460 * WINDOW_W / 1000, 100 * WINDOW_H / 1000)
+    surface.blit(text, textRect)
+
+    text2 = font.render('Start game map 2', True, 'black')
+    textRect2 = text2.get_rect()
+    textRect2.center = (460 * WINDOW_W / 1000, 300 * WINDOW_H / 1000)
+    surface.blit(text2, textRect2)
+
+    text3 = font.render('Start game map 3', True, 'black')
+    textRect3 = text2.get_rect()
+    textRect3.center = (460 * WINDOW_W / 1000, 500 * WINDOW_H / 1000)
+    surface.blit(text3, textRect3)
+
+
+
+    return [textRect, textRect2, textRect3]
+
+
+
 
 def catch_cursor(places: List[Place]):
     posx, posy = pygame.mouse.get_pos()
@@ -73,47 +93,12 @@ def catch_cursor(places: List[Place]):
         else:
             place.reset_color()
 
-def select_place(places: List[Place]):
-    posx, posy = pygame.mouse.get_pos()
-    for place in places:
-        if abs(place.x - posx) < 10 and abs(place.y - posy) < 10:
-            place.select()
-            place.set_color('blue')
-            return
-
-def reset_places(places: List[Place]):
-    for place in places:
-        place.unselect()
-
-def show_neighbours(n: int, place: Place):
-    for v in place.conns_map.values():
-        v.set_show_accesible()
-        if not v.color:
-            v.set_color('pink')
-        if n - 1 > 0:
-            show_neighbours(n - 1, v)
-
-def reset_showed_neighbours(places: List[Place]):
-    for place in places:
-        place.set_show_accesible()
 
 def set_initial_size():
     global WINDOW_W, WINDOW_H
     infoObject = pygame.display.Info()
     WINDOW_W, WINDOW_H =  infoObject.current_w - 100, infoObject.current_h - 100
 
-# def draw_objects():
-#     spider_surf = pygame.image.load('images/spider.png', 'spider')
-    
-
-# def select_next_place(place: Place):
-
-
-def select_fly(places):
-    posx, posy = pygame.mouse.get_pos()
-    for place in places:
-        if isinstance(place.figure, Fly) and abs(place.x - posx) < 10 and abs(place.y - posy) < 10:
-           place.figure.select()
 
 pygame.init()
 set_initial_size()
@@ -124,17 +109,19 @@ clock = pygame.time.Clock()
 surf2 = pygame.Surface((WINDOW_W, WINDOW_H))
 surf2.fill('azure4')
 
-net = Net(path='positions')
-net.make_conns('connections')
-net.update_places(WINDOW_W / 1000, WINDOW_H / 1000)
-turn = Turn(net)
+# net = Net(path='positions')
+# net.make_conns('connections')
+# net.update_places(WINDOW_W / 1000, WINDOW_H / 1000)
+# turn = Turn(net)
+# thread = threading.Thread(target=turn.perform_turn, daemon=True)
 
 
 settings.init()
 
-thread = threading.Thread(target=turn.perform_turn, daemon=True)
-thread2 = threading.Thread(target=catch_cursor, args=(net.places, ), daemon=True)
-started = True
+
+# thread2 = threading.Thread(target=catch_cursor, args=(net.places, ), daemon=True)
+started = False
+menu_displayed = True
 
 while True:
 
@@ -144,10 +131,27 @@ while True:
         started = False
     surf2 = pygame.Surface((WINDOW_W, WINDOW_H))
     surf2.fill('azure4')
-    draw_net(net, surf2)
-    display_buttons(surf2)
-    # for debug
-    display_places_numbers(net, surf2)
+
+    if menu_displayed:
+        rects = display_main_menu(surf2)
+        posx, posy = pygame.mouse.get_pos()
+        state = pygame.mouse.get_pressed()
+        for idx, rect in enumerate(rects):
+            if state[0] and rect.x < posx < rect.x + rect.w and rect.y < posy < rect.y + rect.h:
+                menu_displayed = False
+                started = True
+                net = Net(path='positions'+str(idx+1), path2='figures'+str(idx+1))
+                net.make_conns('connections'+str(idx+1))
+                net.update_places(WINDOW_W / 1000, WINDOW_H / 1000)
+                turn = Turn(net)
+                thread = threading.Thread(target=turn.perform_turn, daemon=True)
+                break
+
+    else:
+        draw_net(net, surf2)
+        display_buttons(surf2)
+        # for debug
+        display_places_numbers(net, surf2)
 
 
     for event in pygame.event.get():
@@ -158,9 +162,10 @@ while True:
             WINDOW_W, WINDOW_H = event.w, event.h
             surf2 = pygame.Surface((WINDOW_W, WINDOW_H))
             surf2.fill('azure4')
-            net.update_places(WINDOW_W / 1000, WINDOW_H / 1000)
-            draw_net(net, surf2)
-            display_buttons(surf2)
+            if not menu_displayed:
+                net.update_places(WINDOW_W / 1000, WINDOW_H / 1000)
+                draw_net(net, surf2)
+                display_buttons(surf2)
         state = pygame.mouse.get_pressed()
 
         # left click is being pressed
@@ -169,8 +174,8 @@ while True:
         # right or middle click
         # if state[1] or state[2]:
         #     reset_places(net.places)
-
-        catch_cursor(net.places)
+        if not menu_displayed:
+            catch_cursor(net.places)
 
     # draw_net(net, surf2)    
     

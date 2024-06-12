@@ -9,18 +9,18 @@ from typing import List
 MAX_X = 500
 MAX_Y = 500
 
-def fill(surface, color):
-    """Fill all pixels of the surface with color, preserve transparency."""
-    w, h = surface.get_size()
-    r, g, b, _ = color
-    for x in range(w):
-        for y in range(h):
-            a1 = surface.get_at((x, y))[0]
-            a2 = surface.get_at((x, y))[1]
-            a3 = surface.get_at((x, y))[2]
-            a4 = surface.get_at((x, y))[3]
-            surface.set_at((x, y), pygame.Color(a1, a2, a3, a4))
-    return surface
+# def fill(surface, color):
+#     """Fill all pixels of the surface with color, preserve transparency."""
+#     w, h = surface.get_size()
+#     r, g, b, _ = color
+#     for x in range(w):
+#         for y in range(h):
+#             a1 = surface.get_at((x, y))[0]
+#             a2 = surface.get_at((x, y))[1]
+#             a3 = surface.get_at((x, y))[2]
+#             a4 = surface.get_at((x, y))[3]
+#             surface.set_at((x, y), pygame.Color(a1, a2, a3, a4))
+#     return surface
 
 class Spider():
     surf = pygame.image.load('images/spider.png', 'spider')
@@ -109,7 +109,6 @@ def read_poss(path, places: List[Place]) -> List[Place]:
     return places
 
 def read_cons(path, places: List[Place]) -> None:
-    # return
     with open(path) as f:
         lines = f.readlines()
         for line in lines:
@@ -127,35 +126,32 @@ def read_cons(path, places: List[Place]) -> None:
 
 class Net():
     places = []
+    spider_pos = None
+    flies_pos = None
+    final_pos = None
 
-    def __init__(self, n=0, random = False, path=None) -> None:
+    def __init__(self, path=None, path2=None) -> None:
         if path:
             read_poss(path, self.places)
+            self.read_figures_places(path2)
             self.add_figures()
-        # dont use them for now
-        elif random:
-            self.places.extend(repeat(Place(uniform(high=MAX_X), uniform(high=MAX_Y)), n))
         else:
-            self.places.extend(repeat(Place(0, 0), n))
+            raise Exception
+
     
     def add_figures(self):
         for place in self.places:
-            if place.c == 1:
+            if place.c == self.spider_pos:
                 place.figure = Spider()
-            if place.c in range(59, 65):
+            if place.c in self.flies_pos:
                 place.figure = Fly()
             # add also final place
-            if place.c == 0:
+            if place.c == self.final_pos:
                 place.final_place = True
     
     def move_figure(self, origin, dest):
         dest.figure = origin.figure
         origin.figure = None
-    
-    # def load_objects():
-    #     spider_surf = pygame.image.load('images/spider.png', 'spider')
-    #     fly_surf = pygame.image.load('images/fly.png', 'fly')
-
 
     def make_conns(self, path):
         read_cons(path, self.places)
@@ -165,13 +161,21 @@ class Net():
             place.x = place.ox * scalex
             place.y = place.oy * scaley
     
-    def find_path(self, dest):
-        return
-        start = list(filter(lambda x: x.selected, self.places))[0]
-
+    def read_figures_places(self, path):
+        # line 0 final pos
+        # line 1 spider pos
+        # line 2 flies pos
+        with open(path) as f:
+            lines = f.readlines()
+            self.final_pos = int(lines[0])
+            self.spider_pos = int(lines[1])
+            self.flies_pos = []
+            poss = lines[2].split(' ')
+            for pos in poss:
+                self.flies_pos.append(int(pos))
 
 
 # for testing purposes
-if __name__ == '__main__':
-    net = Net(path='positions')
-    pytest.set_trace()
+# if __name__ == '__main__':
+#     net = Net(path='positions')
+#     pytest.set_trace()

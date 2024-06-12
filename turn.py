@@ -11,9 +11,6 @@ from utils import get_avaible_moves, get_distance
 
 
 class Turn():
-    # number of players: 2
-    # player 0 plays spider
-    # player 1 plays fly
     player = 1
 
     # current state of the game (move1..9)
@@ -22,13 +19,17 @@ class Turn():
 
     places = None 
 
-
+    # moves
     n = -1
-
+    # selected places in the game
     sel_place1 = None
     sel_place2 = None
-
+    # avaible places to move in the game
     avaible_places = None
+    # eaten flies
+    eaten_flies = 0
+    # flies which reached destination
+    rescued_flies = 0
 
 
     def __init__(self, net) -> None:
@@ -66,7 +67,7 @@ class Turn():
     def mark_avaible_places(self, is_spider=False):
         self.avaible_places = get_avaible_moves(self.sel_place1, self.n, is_spider=is_spider)
         if is_spider:
-            self.avaible_places = list(filter(lambda x: x.c not in range(59, 65),self.avaible_places))
+            self.avaible_places = list(filter(lambda x: x.c not in self.net.flies_pos ,self.avaible_places))
         if not self.avaible_places:
             return
         for place in self.avaible_places:
@@ -78,6 +79,16 @@ class Turn():
         for place in self.avaible_places:
             place.avaible = False
         self.avaible_places = None
+    
+    def check_game_end(self):
+        print(self.eaten_flies)
+        if self.eaten_flies > 2:
+            settings.message = 'Spider won'
+            return True
+        elif self.rescued_flies > 3:
+            settings.message = 'Flies won'
+            return True
+        return False 
     
     # get random number
     def move1(self):
@@ -117,6 +128,11 @@ class Turn():
             pygame.time.wait(1)
             if not state[0]:
                 continue
+            if abs(self.sel_place1.x - posx) < 10 and abs(self.sel_place1.y - posy) < 10:
+                self.unmark_avaible_places()
+                self.sel_place1.figure_selected = False
+                self.state = 2
+                return
             for place in self.avaible_places:
                 if not isinstance(place.figure, Fly) and not isinstance(place.figure, Spider) and abs(place.x - posx) < 10 and abs(place.y - posy) < 10:
                     self.unmark_avaible_places()
@@ -126,6 +142,7 @@ class Turn():
                     if self.sel_place2.final_place:
                         self.net.move_figure(self.sel_place1, self.sel_place2)
                         settings.counter += 1
+                        self.rescued_flies += 1
                         time.sleep(0.5)
                         self.sel_place2.figure = None
                     # common move
@@ -133,7 +150,10 @@ class Turn():
                         self.net.move_figure(self.sel_place1, self.sel_place2)
                     self.sel_place1.figure_selected = False
                     print("selected empty place!")
-                    self.state = 4
+                    if self.check_game_end():
+                        self.state = 8
+                    else:
+                        self.state = 4
                     return
             self.clock.tick(60)
 
@@ -176,10 +196,16 @@ class Turn():
                     self.unmark_avaible_places()
 
                     self.sel_place2 = place
+                    # check whether fly is eaten
+                    if isinstance(self.sel_place2.figure, Fly):
+                        self.eaten_flies += 1
                     self.net.move_figure(self.sel_place1, self.sel_place2)
                     self.sel_place1.figure_selected = False
                     print("selected empty place for spider and moved!")
-                    self.state = 7
+                    if self.check_game_end():
+                        self.state = 8
+                    else:
+                        self.state = 7
                     return
             self.clock.tick(60)
 
@@ -191,14 +217,12 @@ class Turn():
         if self.n > 0:
             self.state = 6
         else:
-            self.state = 8
-
-    # end turn, check game end, go to 1
-    def move8(self):
-        if not any(self.find_any_fly()):
-            settings.message = 'Spider won'
-        else:
             self.state = 1
+
+    # end game state
+    def move8(self):
+        while True:
+            pygame.time.wait(1)
 
 
 
